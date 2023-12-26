@@ -25,12 +25,14 @@ const Filter:React.FC<FilterProps> = ({data,valueKey,name}) => {
       event.preventDefault();
       console.log("Button clicked:", id);
 
-
       const current = qs.parse(searchParams.toString());
+      console.log(current)
+
       const query = {
         ...current,
         [valueKey]: id
       };
+      console.log("query:",query)
     
       if (current[valueKey] === id) {
         query[valueKey] = null;
@@ -40,6 +42,7 @@ const Filter:React.FC<FilterProps> = ({data,valueKey,name}) => {
         url: pathname,
         query
       }, { skipNull: true });
+      console.log(url)
     
       route.push(url,{scroll:false});
     }
