@@ -1,9 +1,8 @@
 import { create } from "zustand";
+import { Product } from "@/types";
+
 import { persist,createJSONStorage } from "zustand/middleware";
 import toast from "react-hot-toast";
-import { AlertTriangle } from 'lucide-react';
-
-import { Product } from "@/types";
 
 interface CartStore{
     items:Product[];
@@ -12,33 +11,33 @@ interface CartStore{
     removeAll:()=>void;
 }
 
+const useCart = create(persist<CartStore>((set,get)=>({
 
-const useCart = create(
-    persist<CartStore>((set,get)=>(
-        {
-            items:[],
-            addItem:(data:Product)=>{
-                const currentItem = get().items;
-                const existingItem = currentItem.find((item)=>item.id === data.id);
-    
-                if(existingItem){
-                    return toast("Item Alreay in Cart")
-                }
-    
-                set({items:[...get().items,data]});
-                toast.success('Item Added to Cart')
-            },
-            removeItem:(id:string)=>{
-                set({items:[...get().items.filter((item)=>item.id !== id)]})
-            },
-            removeAll:()=>set({items:[]})
+    items:[],
+    addItem:(data:Product)=>{
+        const currentProduct = get().items;
+        const existingProduct = currentProduct.find((item)=>item.id === data.id);
+
+        if(existingProduct){
+            return toast('Item Already in Cart')
         }
-    ),{
-        name:'cart-storage',
-        storage:createJSONStorage(()=>localStorage)
-    }));
 
-  export default useCart
-  
+        set({items:[...get().items,data]});
+        toast.success("Product added to cart")
+    },
 
+    removeItem:(id:string)=>{
+        set({items:[...get().items.filter((item)=>item.id !== id)]});
+        toast.success('Item removed from cart');
+    },
 
+    removeAll:()=>{
+        set({items:[]})
+    }
+
+}),{
+    name:'cart-storage',
+    storage:createJSONStorage(()=>localStorage)
+}));
+
+export default useCart;
