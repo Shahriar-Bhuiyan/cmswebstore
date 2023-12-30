@@ -7,11 +7,36 @@ import { useSearchParams } from "next/navigation";
 import Button from "@/components/button";
 import Currency from "@/components/ui/currency";
 import useCart from "@/hooks/use-cart";
+import toast from "react-hot-toast";
+
 
 const Summary = ()=>{
-      
-        const cart = useCart();
-        
+        const searchParams = useSearchParams();
+        const Items = useCart((state)=>state.items);
+        const removeAll = useCart((state)=>state.removeAll);
+
+        useEffect(()=>{
+          if(searchParams.get("success")){
+            toast.success("Payment Completed.")
+            removeAll();
+          }
+
+          if(searchParams.get("canceled")){
+            toast.error("Something went wrong.")
+          }
+
+        },[searchParams,removeAll])
+
+        const totalPrice = Items.reduce((total,item)=>{
+            return total + Number(item.price)
+        },0)
+
+        const onChcekOut = async()=>{
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_KEY
+            }/checkout`,{productIds:Items.map((item)=>item.id)});
+
+            window.location = response.data.url;
+        }
     
         return(
             <div
@@ -33,11 +58,10 @@ const Summary = ()=>{
                     <div className="text-base font-medium text-gray-900">
                      Order Total
                     </div>
-
-                    <Currency value={45}/>
+                    <Currency value={totalPrice}/>
                 </div>
                </div>
-               <Button className="w-full mt-6">
+               <Button onClick={onChcekOut} className="w-full mt-6">
                 Check
                </Button>
             </div>
